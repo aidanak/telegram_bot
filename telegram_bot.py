@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 import requests
-import datetime
+import random
 from sys import exit
 
 
@@ -22,6 +23,12 @@ class BotHandler:
         resp = requests.post(self.api_url + method, params)
         return resp
 
+    def send_image(self, chat_id, image):
+        params = {'chat_id': chat_id, 'photo': image}
+        method = 'sendPhoto'
+        resp = requests.post(self.api_url + method, params)
+        return resp
+
     def get_last_update(self):
         get_result = self.get_updates()
 
@@ -32,39 +39,41 @@ class BotHandler:
 
         return last_update
 
-greet_bot = BotHandler('544172777:AAHJ1iD9fJEFHvKB1LcZIIHxCJ_L-iNjuIc')  
-greetings = ('hi')  
-now = datetime.datetime.now()
+teacher_bot = BotHandler(u'533306043:AAFjJNSAJLtBhaQPsP1tGkIou5y09PkPf5g')  
+sattar = [u'задница', u'сволочь', u'даровская крыса', u'какашка', u'старая каманча', u'упырь', u'гондон', u'пидр', u'дерьмо', u'Жопа с глазками',
+          u'Дурак дураком и уши холодные', u'позитивчик', u'сволочь']
 
 
 def main():
     new_offset = None
-    today = now.day
-    hour = now.hour
 
     while True:
-        greet_bot.get_updates(new_offset)
+            try:
+                teacher_bot.get_updates(new_offset)
 
-        last_update = greet_bot.get_last_update()
+                last_update = teacher_bot.get_last_update()
 
-        last_update_id = last_update['update_id']
-        last_chat_text = last_update['message']['text']
-        last_chat_id = last_update['message']['chat']['id']
-        last_chat_name = last_update['message']['chat']['first_name']
+                last_update_id = last_update['update_id']
+                last_chat_text = (last_update['message']['text']).split(' ')
+                last_chat_id = last_update['message']['chat']['id']
+                if 'first_name' in last_update['message']['from']:
+                    if last_update['message']['from']['first_name'] == u'Galima' or last_update['message']['from']['first_name'] == u'Zhanar':
+                        teacher_bot.send_image(last_chat_id, u'https://cdn5.imgbb.ru/user/106/1068569/201510/5619bd7852e0a150250c53077740299f.png')
+                last_chat_text = [x.lower() for x in last_chat_text]
+                if u'попка' in last_chat_text:
+                    teacher_bot.send_image(last_chat_id, u'http://www.kbtu.kz/Content/Kbtu/images/teachers/176.jpg')
+                if u'саттар' in last_chat_text:
+                    teacher_bot.send_message(last_chat_id, random.choice(sattar))
+                if u'муслим' in last_chat_text:
+                    teacher_bot.send_image(last_chat_id, u'https://cs9.pikabu.ru/post_img/2018/01/14/6/1515920548157545263.png')
+                if u'темирулан' in last_chat_text:
+                    teacher_bot.send_message(last_chat_id, random.choice(sattar))
+                if u'аслан' in last_chat_text:
+                    teacher_bot.send_message(last_chat_id, "ненавижу всяких Асланов")
 
-        if last_chat_text.lower() in greetings and today == now.day and 6 <= hour < 12:
-            greet_bot.send_message(last_chat_id, 'Good morning, {}'.format(last_chat_name))
-            today += 1
-
-        elif last_chat_text.lower() in greetings and today == now.day and 12 <= hour < 17:
-            greet_bot.send_message(last_chat_id, 'Good day, {}'.format(last_chat_name))
-            today += 1
-
-        elif last_chat_text.lower() in greetings and today == now.day and 17 <= hour < 23:
-            greet_bot.send_message(last_chat_id, 'Good evening, {}'.format(last_chat_name))
-            today += 1
-
-        new_offset = last_update_id + 1
+                new_offset = last_update_id + 1
+            except Exception as e:
+                print str(e)
 
 if __name__ == '__main__':  
     try:
